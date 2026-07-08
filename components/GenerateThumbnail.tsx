@@ -49,12 +49,19 @@ const GenerateThumbnail = ({ setImage, setImageStorageId, image, imagePrompt, se
 
   const generateImage = async () => {
     try {
-      const response = await handleGenerateThumbnail({ prompt: imagePrompt });
-      const blob = new Blob([response], { type: 'image/png' });
-      handleImage(blob, `thumbnail-${uuidv4()}.png`);
+      setIsImageLoading(true);
+      const response = await fetch(
+        `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`
+      );
+      if (!response.ok) {
+        throw new Error(`Image generation failed: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      await handleImage(blob, `thumbnail-${uuidv4()}.png`);
     } catch (error) {
       console.log(error)
       toast({ title: 'Error generating thumbnail', variant: 'destructive'})
+      setIsImageLoading(false);
     }
   }
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
