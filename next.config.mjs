@@ -15,6 +15,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'standing-lapwing-96.convex.cloud'
+      },
+      {
+        protocol: 'https',
         hostname: 'img.clerk.com'
       },
     ]

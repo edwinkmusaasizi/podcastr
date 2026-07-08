@@ -21,11 +21,16 @@ export default defineSchema({
   })
     .searchIndex('search_author', { searchField: 'author' })
     .searchIndex('search_title', { searchField: 'podcastTitle' })
-    .searchIndex('search_body', { searchField: 'podcastDescription' }),
+    .searchIndex('search_body', { searchField: 'podcastDescription' })
+    .index("by_authorId", ["authorId"])
+    .index("by_voiceType", ["voiceType"])
+    .index("by_views", ["views"]),
   users: defineTable({
     email: v.string(),
     imageUrl: v.string(),
     clerkId: v.string(),
     name: v.string(),
-  }).index("by_clerkId", ["clerkId"]),
-})
+  })
+    .index("by_clerkId", ["clerkId"])
+    .index("by_email", ["email"]),
+});

@@ -41,9 +41,9 @@ const useGeneratePodcast = ({
         input: voicePrompt
       })
 
-      const blob = new Blob([response], { type: 'audio/mpeg' });
-      const fileName = `podcast-${uuidv4()}.mp3`;
-      const file = new File([blob], fileName, { type: 'audio/mpeg' });
+      const blob = new Blob([response], { type: 'audio/wav' });
+      const fileName = `podcast-${uuidv4()}.wav`;
+      const file = new File([blob], fileName, { type: 'audio/wav' });
 
       const uploaded = await startUpload([file]);
       const storageId = (uploaded[0].response as any).storageId;

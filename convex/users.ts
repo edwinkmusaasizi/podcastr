@@ -22,7 +22,7 @@ export const getTopUserByPodcastCount = query({
       user.map(async (u) => {
         const podcasts = await ctx.db
           .query("podcasts")
-          .filter((q) => q.eq(q.field("authorId"), u.clerkId))
+          .withIndex("by_authorId", (q) => q.eq("authorId", u.clerkId))
           .collect();
 
         const sortedPodcasts = podcasts.sort((a, b) => b.views - a.views);
@@ -82,7 +82,7 @@ export const updateUser = internalMutation({
 
     const podcast = await ctx.db
       .query("podcasts")
-      .filter((q) => q.eq(q.field("authorId"), args.clerkId))
+      .withIndex("by_authorId", (q) => q.eq("authorId", args.clerkId))
       .collect();
 
     await Promise.all(

@@ -24,9 +24,14 @@ export const createPodcast = mutation({
       throw new ConvexError("User not authenticated");
     }
 
+    const email = identity.email;
+    if (!email) {
+      throw new ConvexError("User email not found");
+    }
+
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("email"), identity.email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .collect();
 
     if (user.length === 0) {
@@ -71,14 +76,14 @@ export const getPodcastByVoiceType = query({
   handler: async (ctx, args) => {
     const podcast = await ctx.db.get(args.podcastId);
 
+    if (!podcast) {
+      return [];
+    }
+
     return await ctx.db
       .query("podcasts")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("voiceType"), podcast?.voiceType),
-          q.neq(q.field("_id"), args.podcastId)
-        )
-      )
+      .withIndex("by_voiceType", (q) => q.eq("voiceType", podcast.voiceType))
+      .filter((q) => q.neq(q.field("_id"), args.podcastId))
       .collect();
   },
 });
@@ -103,9 +108,7 @@ export const getPodcastById = query({
 // this query will get the podcasts based on the views of the podcast , which we are showing in the Trending Podcasts section.
 export const getTrendingPodcasts = query({
   handler: async (ctx) => {
-    const podcast = await ctx.db.query("podcasts").collect();
-
-    return podcast.sort((a, b) => b.views - a.views).slice(0, 8);
+    return await ctx.db.query("podcasts").withIndex("by_views").order("desc").take(8);
   },
 });
 
@@ -117,7 +120,7 @@ export const getPodcastByAuthorId = query({
   handler: async (ctx, args) => {
     const podcasts = await ctx.db
       .query("podcasts")
-      .filter((q) => q.eq(q.field("authorId"), args.authorId))
+      .withIndex("by_authorId", (q) => q.eq("authorId", args.authorId))
       .collect();
 
     const totalListeners = podcasts.reduce(

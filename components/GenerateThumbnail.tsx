@@ -21,7 +21,7 @@ const GenerateThumbnail = ({ setImage, setImageStorageId, image, imagePrompt, se
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const { startUpload } = useUploadFiles(generateUploadUrl)
   const getImageUrl = useMutation(api.podcasts.getUrl);
-  const handleGenerateThumbnail = useAction(api.openai.generateThumbnailAction)
+  const handleGenerateThumbnail = useAction(api.gemini.generateThumbnailAction)
 
   const handleImage = async (blob: Blob, fileName: string) => {
     setIsImageLoading(true);

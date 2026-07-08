@@ -10,9 +10,6 @@ export const generateAudioAction = action({
       throw new Error("GEMINI_API_KEY is not set. Please add it to your Convex environment variables.");
     }
 
-    // Map OpenAI voices to Gemini voices if needed, or just use the voice string
-    // Gemini 3.1 Flash TTS voices: "Kore", "Puck", "Charon", "Fenrir", "Aoede", etc.
-    // For now, we'll try to use the provided voice or default to a Gemini voice.
     const geminiVoice = voice || "Aoede"; 
 
     const response = await fetch(
@@ -21,17 +18,21 @@ export const generateAudioAction = action({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Goog-Api-Revision": "2026-05-20",
         },
         body: JSON.stringify({
-          model: "gemini-3.1-flash-tts-preview",
-          input: input,
-          response_format: {
-            type: "audio",
-          },
-          generation_config: {
-            speech_config: [
-              { voice_name: geminiVoice }
-            ]
+          contents: [{
+            parts: [{ text: input }]
+          }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: geminiVoice
+                }
+              }
+            }
           }
         }),
       }
@@ -44,21 +45,59 @@ export const generateAudioAction = action({
 
     const data = await response.json();
     
-    // The Gemini API response structure for TTS needs to be verified.
-    // Usually, it returns base64 encoded audio in the candidates.
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-      const audioPart = data.candidates[0].content.parts.find((p: any) => p.inline_data);
+    if (data.candidates?.[0]?.content?.parts) {
+      const audioPart = data.candidates[0].content.parts.find((p: any) => p.inlineData);
       if (audioPart) {
-        const base64Audio = audioPart.inline_data.data;
+        const base64Audio = audioPart.inlineData.data;
         const binaryString = atob(base64Audio);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
+        const dataLength = binaryString.length;
+        
+        // Create WAV header for 24kHz, 16-bit mono PCM
+        const header = new ArrayBuffer(44);
+        const view = new DataView(header);
+        const sampleRate = 24000;
+
+        view.setUint32(0, 0x52494646, false); // "RIFF"
+        view.setUint32(4, 36 + dataLength, true);
+        view.setUint32(8, 0x57415645, false); // "WAVE"
+        view.setUint32(12, 0x666d7420, false); // "fmt "
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true); // PCM
+        view.setUint16(22, 1, true); // Mono
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true); // Byte rate
+        view.setUint16(32, 2, true); // Block align
+        view.setUint16(34, 16, true); // Bits per sample
+        view.setUint32(36, 0x64617461, false); // "data"
+        view.setUint32(40, dataLength, true);
+
+        const combined = new Uint8Array(44 + dataLength);
+        combined.set(new Uint8Array(header), 0);
+        for (let i = 0; i < dataLength; i++) {
+          combined[44 + i] = binaryString.charCodeAt(i);
         }
-        return bytes.buffer;
+        return combined.buffer;
       }
     }
 
     throw new Error("Failed to extract audio from Gemini response");
+  },
+});
+
+export const generateThumbnailAction = action({
+  args: { prompt: v.string() },
+  handler: async (_, { prompt }) => {
+    // Using Pollinations.ai for image generation as it is free, 
+    // requires no API key, and doesn't need billing info.
+    const response = await fetch(
+      `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Image generation failed: ${response.statusText}`);
+    }
+
+    const buffer = await response.arrayBuffer();
+    return buffer;
   },
 });
