@@ -16,30 +16,26 @@ export const sidebarLinks = [
   },
 ];
 
-export const voiceDetails = [
+export const geminiVoiceDetails = [
   {
     id: 1,
-    name: "alloy",
+    name: "Aoede",
   },
   {
     id: 2,
-    name: "echo",
+    name: "Kore",
   },
   {
     id: 3,
-    name: "fable",
+    name: "Puck",
   },
   {
     id: 4,
-    name: "onyx",
+    name: "Charon",
   },
   {
     id: 5,
-    name: "nova",
-  },
-  {
-    id: 6,
-    name: "shimmer",
+    name: "Fenrir",
   },
 ];
 

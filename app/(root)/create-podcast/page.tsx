@@ -34,8 +34,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useRouter } from "next/navigation"
-
-const voiceCategories = ['alloy', 'shimmer', 'nova', 'echo', 'fable', 'onyx'];
+import { geminiVoiceDetails } from "@/constants"
 
 const formSchema = z.object({
   podcastTitle: z.string().min(2),
@@ -137,19 +136,12 @@ const CreatePodcast = () => {
                   <SelectValue placeholder="Select AI Voice" className="placeholder:text-gray-1 " />
                 </SelectTrigger>
                 <SelectContent className="text-16 border-none bg-black-1 font-bold text-white-1 focus:ring-orange-1">
-                  {voiceCategories.map((category) => (
-                    <SelectItem key={category} value={category} className="capitalize focus:bg-orange-1">
-                      {category}
+                  {geminiVoiceDetails.map((voice) => (
+                    <SelectItem key={voice.id} value={voice.name} className="capitalize focus:bg-orange-1">
+                      {voice.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
-                {voiceType && (
-                  <audio 
-                    src={`/${voiceType}.mp3`}
-                    autoPlay
-                    className="hidden"
-                  />
-                )}
               </Select>
             </div>
 

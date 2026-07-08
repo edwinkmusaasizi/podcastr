@@ -21,7 +21,7 @@ const ConvexClerkProvider = ({ children }: { children: ReactNode }) => (
       colorInputText: 'white',
     }
   }}>
-    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+    <ConvexProviderWithClerk client={convex} useAuth={useAuth as any}>
       {children}
     </ConvexProviderWithClerk>
   </ClerkProvider>

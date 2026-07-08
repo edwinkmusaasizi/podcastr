@@ -20,7 +20,9 @@ const PodcastDetails = ({ params: { podcastId } }: { params: { podcastId: Id<'po
 
   const isOwner = user?.id === podcast?.authorId;
 
-  if(!similarPodcasts || !podcast) return <LoaderSpinner />
+  if (podcast === undefined || similarPodcasts === undefined) return <LoaderSpinner />;
+
+  if (!podcast) return <EmptyState title="Podcast not found" />;
 
   return (
     <section className="flex w-full flex-col">

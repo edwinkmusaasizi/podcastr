@@ -20,7 +20,7 @@ const useGeneratePodcast = ({
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const { startUpload } = useUploadFiles(generateUploadUrl)
 
-  const getPodcastAudio = useAction(api.openai.generateAudioAction)
+  const getGeminiPodcastAudio = useAction(api.gemini.generateAudioAction)
 
   const getAudioUrl = useMutation(api.podcasts.getUrl);
 
@@ -36,7 +36,7 @@ const useGeneratePodcast = ({
     }
 
     try {
-      const response = await getPodcastAudio({
+      const response = await getGeminiPodcastAudio({
         voice: voiceType,
         input: voicePrompt
       })

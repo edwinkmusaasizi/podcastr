@@ -32,6 +32,13 @@ const PodcastDetailPlayer = ({
 
   const handleDelete = async () => {
     try {
+      if (!imageStorageId || !audioStorageId) {
+        return toast({
+          title: "Error deleting podcast",
+          variant: "destructive",
+        });
+      }
+
       await deletePodcast({ podcastId, imageStorageId, audioStorageId });
       toast({
         title: "Podcast deleted",
@@ -49,14 +56,15 @@ const PodcastDetailPlayer = ({
   const handlePlay = () => {
     setAudio({
       title: podcastTitle,
-      audioUrl,
-      imageUrl,
+      audioUrl: audioUrl!,
+      imageUrl: imageUrl!,
       author,
       podcastId,
     });
   };
 
-  if (!imageUrl || !authorImageUrl) return <LoaderSpinner />;
+  if (!imageUrl || !authorImageUrl || !audioUrl || !imageStorageId || !audioStorageId)
+    return <LoaderSpinner />;
 
   return (
     <div className="mt-6 flex w-full justify-between max-md:justify-center">

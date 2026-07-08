@@ -22,7 +22,9 @@ const ProfilePage = ({
     authorId: params.profileId,
   });
 
-  if (!user || !podcastsData) return <LoaderSpinner />;
+  if (user === undefined || podcastsData === undefined) return <LoaderSpinner />;
+
+  if (user === null) return <EmptyState title="User not found" />;
 
   return (
     <section className="mt-9 flex flex-col">

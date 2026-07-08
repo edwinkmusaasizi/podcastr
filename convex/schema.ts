@@ -27,5 +27,5 @@ export default defineSchema({
     imageUrl: v.string(),
     clerkId: v.string(),
     name: v.string(),
-  })
+  }).index("by_clerkId", ["clerkId"]),
 })
