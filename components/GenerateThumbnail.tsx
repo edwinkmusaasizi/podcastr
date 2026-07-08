@@ -51,7 +51,7 @@ const GenerateThumbnail = ({ setImage, setImageStorageId, image, imagePrompt, se
     try {
       const response = await handleGenerateThumbnail({ prompt: imagePrompt });
       const blob = new Blob([response], { type: 'image/png' });
-      handleImage(blob, `thumbnail-${uuidv4()}`);
+      handleImage(blob, `thumbnail-${uuidv4()}.png`);
     } catch (error) {
       console.log(error)
       toast({ title: 'Error generating thumbnail', variant: 'destructive'})
